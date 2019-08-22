@@ -12,33 +12,22 @@
 def setSignal(name, value):
 	rs = vrep.simxSetIntegerSignal(clientID, name, value, vrep.simx_opmode_oneshot_wait)
 
-import vrep,time,sys
+import vrep, time, sys, array, keyboard, math, cv2, numpy
 from PIL import Image as I
-import array
-import keyboard
-import math
-import cv2
 import matplotlib.pyplot as plt
 
 def streamVisionSensor(visionSensorName,clientID,pause=0.0001):
 	#Get the handle of the vision sensor
-	res1,visionSensorHandle=vrep.simxGetObjectHandle(clientID,visionSensorName,vrep.simx_opmode_oneshot_wait)
-	print (visionSensorHandle)
-	#Get the image
-	res2,resolution,image=vrep.simxGetVisionSensorImage(clientID,visionSensorHandle,0,vrep.simx_opmode_streaming)
-	print (res2,res1)
-	#Allow the display to be refreshed
-	plt.ion()
-	#Initialiazation of the figure
-	res,resolution,image=vrep.simxGetVisionSensorImage(clientID,visionSensorHandle,0,vrep.simx_opmode_buffer)
-	im = I.new("RGB", (resolution[0], resolution[1]), "white")
 	#Give a title to the figure
-	fig = plt.figure(1)    
-	fig.canvas.set_window_title(visionSensorName)
-	#inverse the picture
-	plotimg = plt.imshow(im,origin='lower')
+	
 	#Let some time to Vrep in order to let him send the first image, otherwise the loop will start with an empty image and will crash
 	arr = list(map(int, input().split()))
+	res, v0 = vrep.simxGetObjectHandle(clientID, 'Vision_sensor', vrep.simx_opmode_oneshot_wait)
+	res, v1 = vrep.simxGetObjectHandle(clientID, 'v1', vrep.simx_opmode_oneshot_wait)
+
+
+	err, resolution, image = vrep.simxGetVisionSensorImage(clientID, v0, 0, vrep.simx_opmode_streaming)
+	time.sleep(1)
 	while (vrep.simxGetConnectionId(clientID)!=-1): 
 		#Get the image of the vision sensor
 
@@ -73,20 +62,19 @@ def streamVisionSensor(visionSensorName,clientID,pause=0.0001):
 			else:
 				setSignal('gripOff1', 1)
 				setSignal('gripOn1', 0)
-			time.sleep(0.005)
 		except KeyboardInterrupt:
 			arr = list(map(int, input().split()))
 			continue
-		res,resolution,image=vrep.simxGetVisionSensorImage(clientID,visionSensorHandle,0,vrep.simx_opmode_buffer)
-		#Transform the image so it can be displayed using pyplot
-		image_byte_array = array.array('b',image).tobytes()
-		im = I.frombuffer("RGB", (resolution[0],resolution[1]), image_byte_array, "raw", "RGB", 0, 1)
-		#Update the image
-		plotimg.set_data(im)
-		#Refresh the display
-		plt.draw()
-		#The mandatory pause ! (or it'll not work)
-		plt.pause(pause)
+		err, resolution, image = vrep.simxGetVisionSensorImage(clientID, v0, 0, vrep.simx_opmode_buffer)
+		if err == vrep.simx_return_ok:
+			image_byte_array = array.array('b', image).tobytes()
+			image_buffer = I.frombuffer("RGB", (resolution[0],resolution[1]), image_byte_array, "raw", "RGB", 0, 1)
+			img2 = numpy.asarray(image_buffer)
+
+		# ----
+
+		img2 = img2.ravel()
+		vrep.simxSetVisionSensorImage(clientID, v1, img2, 0, vrep.simx_opmode_oneshot)
 	print ('End of Simulation')
 print ('Program started')
 vrep.simxFinish(-1) # just in case, close all opened connections
@@ -100,8 +88,7 @@ if clientID!=-1:
 		setSignal('m3', 60)
 		setSignal('m4', 90)
 		setSignal('ch', 1)
-		_, cam1 = vrep.simxGetObjectHandle(clientID, 'Vision_sensor', vrep.simx_opmode_oneshot_wait)
-		streamVisionSensor('Vision_sensor', clientID)
+		streamVisionSensor("Vision_sensor", clientID)
 		
 
 
