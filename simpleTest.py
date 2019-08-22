@@ -30,7 +30,6 @@ def streamVisionSensor(visionSensorName,clientID,pause=0.0001):
 	#Allow the display to be refreshed
 	plt.ion()
 	#Initialiazation of the figure
-	time.sleep(0.5)
 	res,resolution,image=vrep.simxGetVisionSensorImage(clientID,visionSensorHandle,0,vrep.simx_opmode_buffer)
 	im = I.new("RGB", (resolution[0], resolution[1]), "white")
 	#Give a title to the figure
@@ -39,10 +38,12 @@ def streamVisionSensor(visionSensorName,clientID,pause=0.0001):
 	#inverse the picture
 	plotimg = plt.imshow(im,origin='lower')
 	#Let some time to Vrep in order to let him send the first image, otherwise the loop will start with an empty image and will crash
-	time.sleep(1)
+	arr = list(map(int, input().split()))
 	while (vrep.simxGetConnectionId(clientID)!=-1): 
 		#Get the image of the vision sensor
-		arr = list(map(int, input().split()))
+
+		
+		
 		try:
 				# _, res, image = vrep.simxGetVisionSensorImage(clientID, cam1, 0, vrep.simx_opmode_streaming)
 				# image_byte_array = array.array('b', image).tobytes()
@@ -60,7 +61,6 @@ def streamVisionSensor(visionSensorName,clientID,pause=0.0001):
 			setSignal('m3', arr[2])
 			setSignal('m4', arr[3])
 			setSignal('ch', 1)
-			time.sleep(1)
 			if arr[4] == 1:
 				setSignal('gripOn', 1)
 				setSignal('gripOff', 0)
@@ -73,10 +73,9 @@ def streamVisionSensor(visionSensorName,clientID,pause=0.0001):
 			else:
 				setSignal('gripOff1', 1)
 				setSignal('gripOn1', 0)
-				
-			arr = []
-		except:
-			print('Try Again!')
+			time.sleep(0.005)
+		except KeyboardInterrupt:
+			arr = list(map(int, input().split()))
 			continue
 		res,resolution,image=vrep.simxGetVisionSensorImage(clientID,visionSensorHandle,0,vrep.simx_opmode_buffer)
 		#Transform the image so it can be displayed using pyplot
@@ -103,45 +102,7 @@ if clientID!=-1:
 		setSignal('ch', 1)
 		_, cam1 = vrep.simxGetObjectHandle(clientID, 'Vision_sensor', vrep.simx_opmode_oneshot_wait)
 		streamVisionSensor('Vision_sensor', clientID)
-		while True:
-			arr = list(map(int, input().split()))
-			try:
-				# _, res, image = vrep.simxGetVisionSensorImage(clientID, cam1, 0, vrep.simx_opmode_streaming)
-				# image_byte_array = array.array('b', image).tobytes()
-				# print(image_byte_array)
-				# try:
-				#   im = Image.frombuffer("RGB", (res[0], res[1]), image_byte_array, "raw", "RGB", 0, 1)
-				# except IndexError:
-				#   print(IndexError)
-				#   continue
-
-				# im.show()
-				
-				setSignal('m1', arr[0])
-				setSignal('m2', arr[1])
-				setSignal('m3', arr[2])
-				setSignal('m4', arr[3])
-				setSignal('ch', 1)
-				time.sleep(1)
-				if arr[4] == 1:
-					setSignal('gripOn', 1)
-					setSignal('gripOff', 0)
-				else:
-					setSignal('gripOff', 1)
-					setSignal('gripOn', 0)
-				if arr[5] == 1:
-					setSignal('gripOn1', 1)
-					setSignal('gripOff1', 0)
-				else:
-					setSignal('gripOff1', 1)
-					setSignal('gripOn1', 0)
-				
-				arr = []
-			except:
-				print('Try Again!')
-				continue
-			if keyboard.is_pressed("Ctrl+q"):
-				break
+		
 
 
 	except KeyboardInterrupt:
