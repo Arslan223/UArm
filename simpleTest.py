@@ -67,6 +67,12 @@ def streamVisionSensor(visionSensorName,clientID,pause=0.0001):
 			else:
 				setSignal('gripOff', 1)
 				setSignal('gripOn', 0)
+			if arr[5] == 1:
+				setSignal('gripOn1', 1)
+				setSignal('gripOff1', 0)
+			else:
+				setSignal('gripOff1', 1)
+				setSignal('gripOn1', 0)
 				
 			arr = []
 		except:
@@ -123,6 +129,12 @@ if clientID!=-1:
 				else:
 					setSignal('gripOff', 1)
 					setSignal('gripOn', 0)
+				if arr[5] == 1:
+					setSignal('gripOn1', 1)
+					setSignal('gripOff1', 0)
+				else:
+					setSignal('gripOff1', 1)
+					setSignal('gripOn1', 0)
 				
 				arr = []
 			except:
