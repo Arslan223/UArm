@@ -61,11 +61,11 @@ def armMotion():
 		try:
 			a = getInput()
 			ch = False
-			if a == 'bottle':
+			if a == 'water':
 				arr = [[90, 104, 60, 90, 0, 0], [90, 150, 60, 90, 0, 0], [6, 150, 60, 90, 0, 0], [6, 122, 65, 90, 0, 0], [6, 122, 65, 90, 0, 1], [6, 122, 10, 90, 0, 1], [6, 104, 10, 90, 0, 1], [90, 115, 10, 90, 0, 1], [90, 115, 10, 90, 0, 0]]
 				ch = True
 			elif a == 'money':
-				arr = [[180, 55, 92, 90, 1, 0], [180, 104, 60, 90, 1, 0], [90, 104, 60, 90, 1, 0], [90, 104, 60, 90, 0, 0]]
+				arr = [[180, 104, 60, 90, 1, 0], [180, 55, 92, 90, 1, 0], [180, 104, 60, 90, 1, 0], [90, 104, 60, 90, 1, 0], [90, 104, 60, 90, 0, 0]]
 				ch = False
 			else:
 				continue
@@ -110,7 +110,7 @@ def streamVisionSensor(visionSensorName,clientID,pause=0.0001):
 	res, v0 = vrep.simxGetObjectHandle(clientID, 'Vision_sensor', vrep.simx_opmode_oneshot_wait)
 	res, v1 = vrep.simxGetObjectHandle(clientID, 'v1', vrep.simx_opmode_oneshot_wait)
 	#Let some time to Vrep in order to let him send the first image, otherwise the loop will start with an empty image and will crash
-	arr = list(map(int, input().split()))
+	arr = [90, 104, 60, 90, 0, 0]
 	
 
 	err, resolution, image = vrep.simxGetVisionSensorImage(clientID, v0, 0, vrep.simx_opmode_streaming)
